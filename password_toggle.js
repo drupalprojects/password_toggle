@@ -1,11 +1,12 @@
 // $Id$
+
 /**
  * Add a "Show password" checkbox to each password field.
  */
 Drupal.behaviors.showPassword = function (context) {
   // Create the checkbox.
-  var showPassword = $('<label><input type="checkbox" />' + Drupal.t('Show password') + '</label>');
-  // Add click handler.
+  var showPassword = $('<label class="password-toggle"><input type="checkbox" />' + Drupal.t('Show password') + '</label>');
+  // Add click handler to checkboxes.
   $(':checkbox', showPassword).click(function () {
     var orig;
     var copy;
