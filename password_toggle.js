@@ -10,22 +10,25 @@ Drupal.behaviors.showPassword = function (context) {
   $(':checkbox', showPassword).click(function () {
     var orig;
     var copy;
+    var wrap;
     if ($(this).is(':checked')) {
       // Copy original field and convert it to a simple textfield.
       orig = $(this).parent().parent().find(':password');
-      copy = orig.clone();
-      $(copy).attr('type', 'text');
-      $(copy).addClass('show-password');
+      copy = $('<input type="text" />');
     }
     else {
       // Copy original field and convert it to a password field.
-      orig = $(this).parent().parent().find('input.show-password');
-      $(orig).removeClass('show-password');
-      copy = orig.clone();
-      $(copy).attr('type', 'password');
+      orig = $(this).parent().parent().find('.show-password');
+      copy = $('<input type="password" />');
     }
-    // Replace currently displayed field with the modified copy.
-    $(orig).replaceWith(copy);
+    // Replace currently displayed field with the modified copy and re-assign
+    // all attributes. Thanks to IE we have to go this way.
+    $(copy).attr('id', $(orig).attr('id'));
+    $(copy).attr('class', $(orig).attr('class'));
+    $(copy).attr('size', $(orig).attr('size'));
+    $(copy).attr('maxlength', $(orig).attr('maxlength'));
+    $(copy).attr('name', $(orig).attr('name'));
+    $(orig).replaceWith($(copy).toggleClass('show-password').val($(orig).val()));
   });
   // Add checkbox to all password field on the current page.
   showPassword.insertAfter($(':password'));
