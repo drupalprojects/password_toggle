@@ -1,4 +1,3 @@
-// $Id$
 /**
  * Add a "Show password" checkbox to each password field.
  */
