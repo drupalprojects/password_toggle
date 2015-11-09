@@ -1,39 +1,50 @@
 (function ($) {
 
-/**
- * Add a "Show password" checkbox to each password field.
- */
-Drupal.behaviors.showPassword = {
-  attach: function (context) {
-    // Create the checkbox.
-    var showPassword = $('<label class="password-toggle"><input type="checkbox" />' + Drupal.t('Show password') + '</label>');
-    // Add click handler to checkboxes.
-    $(':checkbox', showPassword).click(function () {
-      var orig;
-      var copy;
-      var wrap;
-      if ($(this).is(':checked')) {
-        // Copy original field and convert it to a simple textfield.
-        orig = $(this).parent().parent().find(':password');
-        copy = $('<input type="text" />');
+  /**
+   * Add a "Show password" checkbox to each password field.
+   */
+  Drupal.behaviors.showPassword = {
+    attach: function (context) {
+      // Create the checkbox.
+      var showPassword = $('<label class="password-toggle"><input type="checkbox" />' + Drupal.t('Show password') + '</label>');
+      // Add click handler to checkboxes.
+      $(':checkbox', showPassword).click(function () {
+        $password_field = $(this).closest('.form-type-password').find(':password');
+        if ($password_field.length === 0) {
+          return;
+        }
+        $preview = $(this).closest('.form-type-password').find('.password-preview');
+        if ($preview.length === 0) {
+          $preview = $('<div>')
+                  .addClass('password-preview')
+                  .insertAfter($password_field);
+        }
+        if ($(this).is(':checked')) {
+          // Fill and show the password preview.
+          $preview.text($password_field.val());
+          $preview.slideDown();
+        }
+        else {
+          // Hide password preview.
+          $preview.slideUp();
+          $preview.text('');
+        }
+      });
+
+      // Update password preview.
+      var updatePasswordPreview = function () {
+        $preview = $(this).closest('.form-type-password').find('.password-preview');
+        if ($preview.is(':visible')) {
+          $preview.text($(this).val());
+        }
       }
-      else {
-        // Copy original field and convert it to a password field.
-        orig = $(this).parent().parent().find('.show-password');
-        copy = $('<input type="password" />');
-      }
-      // Replace currently displayed field with the modified copy and re-assign
-      // all attributes. Thanks to IE we have to go this way.
-      $(copy).attr('id', $(orig).attr('id'));
-      $(copy).attr('class', $(orig).attr('class'));
-      $(copy).attr('size', $(orig).attr('size'));
-      $(copy).attr('maxlength', $(orig).attr('maxlength'));
-      $(copy).attr('name', $(orig).attr('name'));
-      $(orig).replaceWith($(copy).toggleClass('show-password').val($(orig).val()));
-    });
-    // Add checkbox to all password field on the current page.
-    showPassword.insertAfter($(':password', context));
-  }
-};
+
+      var $passwordInput = $(context).find(':password');
+      $passwordInput.bind('keyup', updatePasswordPreview);
+
+      // Add checkbox to all password field on the current page.
+      showPassword.insertAfter($passwordInput);
+    }
+  };
 
 })(jQuery);
